@@ -23,7 +23,7 @@ public class ProductService {
     }
 
     public Product findById(Integer id) {
-        return productRepository.findById(id)
+        return productRepository.findByIdWithCategory(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 }

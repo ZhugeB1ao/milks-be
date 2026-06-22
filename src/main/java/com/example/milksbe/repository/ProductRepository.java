@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     @EntityGraph(attributePaths = "category")
     @Query("""
@@ -21,4 +23,12 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("categoryId") Integer categoryId,
             Pageable pageable
     );
+
+    @Query("""
+            SELECT p
+            FROM Product p
+            JOIN FETCH p.category
+            WHERE p.id = :id
+            """)
+    Optional<Product> findByIdWithCategory(@Param("id") Integer id);
 }
