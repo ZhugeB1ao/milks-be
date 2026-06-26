@@ -10,8 +10,7 @@ import java.util.List;
 
 public record CheckoutRequest(
         @NotEmpty(message = "Cart must have at least one item")
-        @Valid
-        List<Item> items
+        List<@Valid Item> items
 ) {
     public record Item(
             @NotNull(message = "Product id is required")
