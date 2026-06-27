@@ -4,6 +4,8 @@ import com.example.milksbe.dto.request.CheckoutRequest;
 import com.example.milksbe.dto.response.CheckoutResponse;
 import com.example.milksbe.model.*;
 import com.example.milksbe.repository.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,5 +106,31 @@ public class OrderService {
                 savedOrder.getTotalAmount(),
                 responseItems
         );
+    }
+
+    public Page<OrderHeader> findOrders(Pageable pageable) {
+        return orderHeaderRepository.findAllByOrderByOrderDateDesc(pageable);
+    }
+
+    public OrderHeader findOrderById(Integer id) {
+        return orderHeaderRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+    }
+
+    @Transactional
+    public OrderHeader updateStatus(Integer id, String status) {
+        String normalizedStatus = status == null ? "" : status.trim().toUpperCase();
+
+        if (!List.of("NEW", "SHIPPING", "PAID").contains(normalizedStatus)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid order status");
+        }
+
+        OrderHeader order = findOrderById(id);
+        order.setStatus(normalizedStatus);
+        return orderHeaderRepository.save(order);
+    }
+
+    public List<OrderDetail> findOrderDetails(Integer orderId) {
+        return orderDetailRepository.findByOrderHeaderId(orderId);
     }
 }
