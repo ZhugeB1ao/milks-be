@@ -20,7 +20,9 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/images/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/products/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(PathPatternRequestMatcher.pathPattern("/api/auth/**")).permitAll()
                         .anyRequest().authenticated()
                 )
