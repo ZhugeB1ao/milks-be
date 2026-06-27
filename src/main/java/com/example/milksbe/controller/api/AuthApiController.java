@@ -3,6 +3,7 @@ package com.example.milksbe.controller.api;
 import com.example.milksbe.dto.request.LoginRequest;
 import com.example.milksbe.dto.request.RegisterRequest;
 import com.example.milksbe.dto.response.AuthResponse;
+import com.example.milksbe.dto.response.LoginResponse;
 import com.example.milksbe.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class AuthApiController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
     }
 

@@ -3,6 +3,7 @@ package com.example.milksbe.service;
 import com.example.milksbe.dto.request.LoginRequest;
 import com.example.milksbe.dto.request.RegisterRequest;
 import com.example.milksbe.dto.response.AuthResponse;
+import com.example.milksbe.dto.response.LoginResponse;
 import com.example.milksbe.model.Account;
 import com.example.milksbe.model.Customer;
 import com.example.milksbe.repository.AccountRepository;
@@ -23,15 +24,18 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthService(
             AccountRepository accountRepository,
             CustomerRepository customerRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService
     ) {
         this.accountRepository = accountRepository;
         this.customerRepository = customerRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Transactional
@@ -64,7 +68,7 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true )
-    public AuthResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         Account account = accountRepository.findByEmailIgnoreCase(normalizeEmail(request.email()))
                 .orElseThrow(this::invalidCredentials);
 
@@ -76,7 +80,13 @@ public class AuthService {
             throw invalidCredentials();
         }
 
-        return toResponse(account, findCustomer(account));
+        String accessToken = jwtService.generateToken(account);
+
+        return new LoginResponse(
+                accessToken,
+                "Bearer",
+                toResponse(account, findCustomer(account))
+        );
     }
 
     @Transactional(readOnly = true)
